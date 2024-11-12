@@ -7,11 +7,6 @@
       "generator": "Ninja",
       "binaryDir": "${sourceDir}/out/build/${presetName}",
       "installDir": "${sourceDir}/out/install/${presetName}",
-      "environment": {
-        //Set the env variable
-        "VCPKG_ROOT": "C:/dev/vcpkg",
-        "FFMPEG_BUILD": "C:/dev/DeepFFMPEG/FFmpeg_Build"
-      },
       "cacheVariables": {
         "CMAKE_C_COMPILER": "cl.exe",
         "CMAKE_CXX_COMPILER": "cl.exe",
@@ -25,6 +20,7 @@
     },
     {
       "name": "x64-debug",
+      "hidden": true,
       "displayName": "x64 Debug",
       "inherits": "windows-base",
       "architecture": {
@@ -33,17 +29,18 @@
       },
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug"
-       }
+      }
     },
     {
       "name": "x64-release",
+      "hidden": true,
       "displayName": "x64 Release",
       "inherits": "x64-debug",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release"
       }
-    },
-    {
+    }
+    /*{
       "name": "x86-debug",
       "displayName": "x86 Debug",
       "inherits": "windows-base",
@@ -62,7 +59,7 @@
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release"
       }
-    }
+    }*/
     /*{
       "name": "linux-debug",
       "displayName": "Linux Debug",

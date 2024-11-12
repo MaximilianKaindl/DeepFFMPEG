@@ -91,12 +91,7 @@ target_link_libraries(DeepFFMPEG
         $<$<PLATFORM_ID:Windows>:Secur32>
         $<$<PLATFORM_ID:Windows>:BCrypt>
 )
-
-# Optional: Print library paths for debugging
-message(STATUS "FFmpeg directory: ${FFMPEG_BUILD}")
-message(STATUS "FFmpeg library path: ${FFMPEG_LIBRARY_PATH}")
-message(STATUS "FFmpeg binary path: ${FFMPEG_BIN_PATH}")
-
+#Print library status for debugging
 foreach(lib avformat avcodec avutil avdevice swscale swresample)
     if(EXISTS "${FFMPEG_LIBRARY_PATH}/${lib}${LIB_SUFFIX}")
         message(STATUS "Found library: ${FFMPEG_LIBRARY_PATH}/${lib}${LIB_SUFFIX}")

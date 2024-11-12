@@ -1,0 +1,15 @@
+{
+  "version": 3,
+
+  "configurePresets": [
+    {
+      "name": "debug",
+      "inherits": "x64-debug",
+      "environment": {
+        //Set the env variable
+        "VCPKG_ROOT": "C:/dev/vcpkg",
+        "FFMPEG_BUILD": "C:/dev/DeepFFMPEG/FFmpeg_Build"
+      }
+    }
+  ]
+}

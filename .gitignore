@@ -1,3 +1,27 @@
+# Build directories
+/build/
+/out/
+/FFmpeg_Build/
+/[Dd]ebug/
+/[Rr]elease/
+/x64/
+/x86/
+/[Bb]in/
+/[Oo]bj/
+
+# CMake specific
+CMakeLists.txt.user
+CMakeCache.txt
+CMakeFiles/
+CMakeScripts/
+Testing/
+Makefile
+cmake_install.cmake
+install_manifest.txt
+compile_commands.json
+CTestTestfile.cmake
+_deps/
+
 # Prerequisites
 *.d
 
@@ -30,3 +54,77 @@
 *.exe
 *.out
 *.app
+
+# IDE - Visual Studio
+.vs/
+*.user
+*.userosscache
+*.sdf
+*.opensdf
+*.VC.db
+*.VC.opendb
+ipch/
+*.aps
+*.ncb
+*.suo
+*.tlb
+*.tlh
+*.bak
+*.cache
+*.ilk
+*.log
+*.pdb
+*.pgc
+*.pgd
+*.rsp
+*.sbr
+*.tlog
+*.vspscc
+*.vssscc
+*.builds
+
+# IDE - VSCode
+.vscode/
+*.code-workspace
+.history/
+
+# IDE - JetBrains (CLion)
+.idea/
+cmake-build-*/
+*.iml
+*.iws
+*.ipr
+
+# FFmpeg specific
+*.ffindex
+*.ffpreset
+
+# OS specific
+## Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+## macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+## Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+
+# Project specific
+## dependencies (if you have any third-party libraries)
+/third_party/*
+!/third_party/CMakeLists.txt
+
+# Temporary files
+*.tmp
+*.temp
+*.swp

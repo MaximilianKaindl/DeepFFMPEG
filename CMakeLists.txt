@@ -11,6 +11,8 @@ endif()
 
 project ("DeepFFMPEG")
 
+find_package(fmt CONFIG REQUIRED)
+
 # Add source to this project's executable.
 add_executable (DeepFFMPEG "DeepFFMPEG.cpp" "DeepFFMPEG.h")
 
@@ -19,15 +21,16 @@ if (CMAKE_VERSION VERSION_GREATER 3.12)
 endif()
 
 # Define cache variables with default values if not set
-set(FFMPEG_DIR "${SOURCE_DIR}/FFmpeg_Build" CACHE PATH "FFmpeg build directory")
+# Get the FFMPEG_BUILD from environment if not already set in cache
+set(FFMPEG_BUILD $ENV{FFMPEG_BUILD})
 
 # Normalize paths for Ninja
-file(TO_CMAKE_PATH "${FFMPEG_DIR}" FFMPEG_DIR)
-set(FFMPEG_LIBRARY_PATH "${FFMPEG_DIR}/lib")
-set(FFMPEG_BIN_PATH "${FFMPEG_DIR}/bin")
+file(TO_CMAKE_PATH "${FFMPEG_BUILD}" FFMPEG_BUILD)
+set(FFMPEG_LIBRARY_PATH "${FFMPEG_BUILD}/lib")
+set(FFMPEG_BIN_PATH "${FFMPEG_BUILD}/bin")
 
 # Include directories
-include_directories(${FFMPEG_DIR}/include)
+include_directories(${FFMPEG_BUILD}/include)
 
 # Add library directories
 link_directories(${FFMPEG_LIBRARY_PATH})
@@ -90,7 +93,7 @@ target_link_libraries(DeepFFMPEG
 )
 
 # Optional: Print library paths for debugging
-message(STATUS "FFmpeg directory: ${FFMPEG_DIR}")
+message(STATUS "FFmpeg directory: ${FFMPEG_BUILD}")
 message(STATUS "FFmpeg library path: ${FFMPEG_LIBRARY_PATH}")
 message(STATUS "FFmpeg binary path: ${FFMPEG_BIN_PATH}")
 
@@ -101,3 +104,5 @@ foreach(lib avformat avcodec avutil avdevice swscale swresample)
         message(WARNING "Missing library: ${FFMPEG_LIBRARY_PATH}/${lib}${LIB_SUFFIX}")
     endif()
 endforeach()
+
+target_link_libraries(DeepFFMPEG PRIVATE fmt::fmt)

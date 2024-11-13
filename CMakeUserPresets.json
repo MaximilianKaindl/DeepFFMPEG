@@ -8,7 +8,8 @@
       "environment": {
         //Set the env variable
         "VCPKG_ROOT": "C:/dev/vcpkg",
-        "FFMPEG_BUILD": "C:/dev/DeepFFMPEG/FFmpeg_Build"
+        "FFMPEG_BUILD": "C:/dev/DeepFFMPEG/FFmpeg_Build",
+        "TORCH_BUILD": "C:/dev/DeepFFMPEG/libtorch"
       }
     }
   ]

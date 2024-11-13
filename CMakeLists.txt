@@ -11,14 +11,26 @@ endif()
 
 project ("DeepFFMPEG")
 
+set(CMAKE_PREFIX_PATH "$ENV{TORCH_BUILD}")
+
 find_package(fmt CONFIG REQUIRED)
+find_package(Torch REQUIRED)
+
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${TORCH_CXX_FLAGS}")
+
+set(SOURCE_FILES
+    main.cpp
+    FFmpegProcessor.cpp
+    #vf_simple.cpp
+    FFmpegLogger.cpp)
+
+set(HEADER_FILES
+    main.h
+    FFmpegProcessor.h
+    FFmpegLogger.h)
 
 # Add source to this project's executable.
-add_executable (DeepFFMPEG "DeepFFMPEG.cpp" "DeepFFMPEG.h")
-
-if (CMAKE_VERSION VERSION_GREATER 3.12)
-  set_property(TARGET DeepFFMPEG PROPERTY CXX_STANDARD 20)
-endif()
+add_executable (DeepFFMPEG ${SOURCE_FILES} ${HEADER_FILES})
 
 # Define cache variables with default values if not set
 # Get the FFMPEG_BUILD from environment if not already set in cache
@@ -101,3 +113,14 @@ foreach(lib avformat avcodec avutil avdevice swscale swresample)
 endforeach()
 
 target_link_libraries(DeepFFMPEG PRIVATE fmt::fmt)
+target_link_libraries(DeepFFMPEG PRIVATE "${TORCH_LIBRARIES}")
+set_property(TARGET DeepFFMPEG PROPERTY CXX_STANDARD 17)
+
+if (MSVC)
+  file(GLOB TORCH_DLLS "${TORCH_INSTALL_PREFIX}/lib/*.dll")
+  add_custom_command(TARGET DeepFFMPEG
+                     POST_BUILD
+                     COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                     ${TORCH_DLLS}
+                     $<TARGET_FILE_DIR:DeepFFMPEG>)
+endif (MSVC)

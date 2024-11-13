@@ -128,3 +128,5 @@ $RECYCLE.BIN/
 *.tmp
 *.temp
 *.swp
+/libtorch
+/libtorchCUDA

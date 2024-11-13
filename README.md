@@ -1,9 +1,6 @@
 # DeepFFMPEG
 
-##Installation Guide
+## Installation Guide
 
-This Project uses CMake and Ninja to build. VCPKG is the Packagemanager.
-
-Required Programms for Pytorch to work:
-  -CUDA: https://developer.nvidia.com/cuda-downloads?target_os=Windows&target_arch=x86_64&target_version=11&target_type=exe_local
-  -CUDA CNN https://developer.nvidia.com/cudnn-downloads?target_os=Windows&target_arch=x86_64&target_version=10&target_type=exe_local
+This Project uses CMake and Ninja to build. VCPKG is used as the Packagemanager.
+Pytorch and FFMPEG are prebuilt and have to their paths have to be included via the "FFMPEG_BUILD" "TORCH_BUILD" Evnironment Variables, which are set in CMakeUserPresets.json.

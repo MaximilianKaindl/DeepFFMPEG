@@ -18,16 +18,18 @@ find_package(Torch REQUIRED)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${TORCH_CXX_FLAGS}")
 
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/header)
+
 set(SOURCE_FILES
-    main.cpp
-    FFmpegProcessor.cpp
+    "src/main.cpp"
+    "src/FFmpegProcessor.cpp"
     #vf_simple.cpp
-    FFmpegLogger.cpp)
+    "src/FFmpegLogger.cpp")
 
 set(HEADER_FILES
-    main.h
-    FFmpegProcessor.h
-    FFmpegLogger.h)
+    "header/main.h"
+    "header/FFmpegProcessor.h"
+    "header/FFmpegLogger.h")
 
 # Add source to this project's executable.
 add_executable (DeepFFMPEG ${SOURCE_FILES} ${HEADER_FILES})

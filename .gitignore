@@ -130,3 +130,4 @@ $RECYCLE.BIN/
 *.swp
 /libtorch
 /libtorchCUDA
+/resources/input.mp4

@@ -22,14 +22,21 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/header)
 
 set(SOURCE_FILES
     "src/main.cpp"
-    "src/FFmpegProcessor.cpp"
-    #vf_simple.cpp
-    "src/FFmpegLogger.cpp")
+    "src/ffmpeg_processor.cpp"
+    #"src/vf_simple.c"
+    "src/fmpeg_logger.cpp" 
+    "src/ffmpeg_common.cpp" 
+    "src/ffmpeg_filter.cpp" 
+    "src/ffmpeg_io.cpp")
 
 set(HEADER_FILES
     "header/main.h"
-    "header/FFmpegProcessor.h"
-    "header/FFmpegLogger.h")
+    #"header/vf_simple.h"
+    "header/ffmpeg_processor.h"
+    "header/ffmpeg_logger.h" 
+    "header/ffmpeg_common.h" 
+    "header/ffmpeg_filter.h" 
+    "header/ffmpeg_io.h")
 
 # Add source to this project's executable.
 add_executable (DeepFFMPEG ${SOURCE_FILES} ${HEADER_FILES})
@@ -95,6 +102,7 @@ target_link_libraries(DeepFFMPEG
         ${FFMPEG_LIBRARY_PATH}/avformat${LIB_SUFFIX}
         ${FFMPEG_LIBRARY_PATH}/avcodec${LIB_SUFFIX}
         ${FFMPEG_LIBRARY_PATH}/avutil${LIB_SUFFIX}
+        ${FFMPEG_LIBRARY_PATH}/avfilter${LIB_SUFFIX}
         ${FFMPEG_LIBRARY_PATH}/avdevice${LIB_SUFFIX}
         ${FFMPEG_LIBRARY_PATH}/swscale${LIB_SUFFIX}
         ${FFMPEG_LIBRARY_PATH}/swresample${LIB_SUFFIX}
@@ -106,7 +114,7 @@ target_link_libraries(DeepFFMPEG
         $<$<PLATFORM_ID:Windows>:BCrypt>
 )
 #Print library status for debugging
-foreach(lib avformat avcodec avutil avdevice swscale swresample)
+foreach(lib avformat avcodec avutil avdevice avfilter swscale swresample)
     if(EXISTS "${FFMPEG_LIBRARY_PATH}/${lib}${LIB_SUFFIX}")
         message(STATUS "Found library: ${FFMPEG_LIBRARY_PATH}/${lib}${LIB_SUFFIX}")
     else()

@@ -131,3 +131,4 @@ $RECYCLE.BIN/
 /libtorch
 /libtorchCUDA
 /resources/input.mp4
+/vcpkg_installed/vcpkg

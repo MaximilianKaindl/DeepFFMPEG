@@ -13,7 +13,7 @@ project ("DeepFFMPEG")
 
 set(CMAKE_PREFIX_PATH "$ENV{TORCH_BUILD}")
 
-find_package(fmt CONFIG REQUIRED)
+#find_package(fmt CONFIG REQUIRED)
 find_package(Torch REQUIRED)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${TORCH_CXX_FLAGS}")
@@ -22,21 +22,10 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/header)
 
 set(SOURCE_FILES
     "src/main.cpp"
-    "src/ffmpeg_processor.cpp"
-    #"src/vf_simple.c"
-    "src/fmpeg_logger.cpp" 
-    "src/ffmpeg_common.cpp" 
-    "src/ffmpeg_filter.cpp" 
-    "src/ffmpeg_io.cpp")
+)
 
 set(HEADER_FILES
-    "header/main.h"
-    #"header/vf_simple.h"
-    "header/ffmpeg_processor.h"
-    "header/ffmpeg_logger.h" 
-    "header/ffmpeg_common.h" 
-    "header/ffmpeg_filter.h" 
-    "header/ffmpeg_io.h")
+)
 
 # Add source to this project's executable.
 add_executable (DeepFFMPEG ${SOURCE_FILES} ${HEADER_FILES})
@@ -122,7 +111,7 @@ foreach(lib avformat avcodec avutil avdevice avfilter swscale swresample)
     endif()
 endforeach()
 
-target_link_libraries(DeepFFMPEG PRIVATE fmt::fmt)
+#target_link_libraries(DeepFFMPEG PRIVATE fmt::fmt)
 target_link_libraries(DeepFFMPEG PRIVATE "${TORCH_LIBRARIES}")
 set_property(TARGET DeepFFMPEG PROPERTY CXX_STANDARD 17)
 

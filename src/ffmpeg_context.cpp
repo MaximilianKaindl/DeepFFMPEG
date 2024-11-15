@@ -7,6 +7,10 @@ extern "C" {
 #include <libavutil/opt.h>
 }
 
+/**
+* Implements FFmpeg context for video decoding and filtering
+* Based on FFmpeg decode_filter example
+*/
 
 FFmpegContext::FFmpegContext() {
     LOG_INFO("Initializing FFmpeg context");
@@ -20,6 +24,7 @@ FFmpegContext::~FFmpegContext() {
 }
 
 void FFmpegContext::check_av_error(const int error_code, const std::string& operation) {
+    // Check FFmpeg error code and throw exception with details if error occurred
     if (error_code < 0) {
         std::string error_msg = FFmpegLogger::av_error_to_string(error_code);
         LOG_ERR("Failed to " + operation + ": " + error_msg);
@@ -32,24 +37,30 @@ void FFmpegContext::open_input_file(const std::string& filename) {
     const AVCodec* dec;
     int ret;
 
+    // Open the input file to read from it
     ret = avformat_open_input(&fmt_ctx, filename.c_str(), nullptr, nullptr);
     check_av_error(ret, "open input");
 
+    // Read packets of the file to get stream information
     ret = avformat_find_stream_info(fmt_ctx, nullptr);
     check_av_error(ret, "find stream info");
 
+    // Find the best video stream
     ret = av_find_best_stream(fmt_ctx, AVMEDIA_TYPE_VIDEO, -1, -1, &dec, 0);
     check_av_error(ret, "find video stream");
     video_stream_index = ret;
 
+    // Allocate a codec context for the decoder
     dec_ctx = avcodec_alloc_context3(dec);
     if (!dec_ctx) {
         throw FFmpegException("Failed to allocate decoder context");
     }
 
+    // Fill the codec context based on the values from the supplied codec parameters
     ret = avcodec_parameters_to_context(dec_ctx, fmt_ctx->streams[video_stream_index]->codecpar);
     check_av_error(ret, "copy codec params");
 
+    // Initialize the decoder
     ret = avcodec_open2(dec_ctx, dec, nullptr);
     check_av_error(ret, "open decoder");
 }
@@ -65,11 +76,13 @@ void FFmpegContext::init_filters(const std::string& filters_descr) {
     char args[512];
     int ret;
 
+    // Create filter graph
     filter_graph = avfilter_graph_alloc();
     if (!filter_graph || !outputs || !inputs) {
         throw FFmpegException("Failed to allocate filter resources");
     }
 
+    /* buffer video source: the decoded frames from the decoder will be inserted here. */
     snprintf(args, sizeof(args),
         "video_size=%dx%d:pix_fmt=%d:time_base=%d/%d:pixel_aspect=%d/%d",
         dec_ctx->width, dec_ctx->height, dec_ctx->pix_fmt,
@@ -80,11 +93,13 @@ void FFmpegContext::init_filters(const std::string& filters_descr) {
         args, nullptr, filter_graph);
     check_av_error(ret, "create buffer source");
 
+    /* buffer video sink: to terminate the filter chain. */
     buffersink_ctx = avfilter_graph_alloc_filter(filter_graph, buffersink, "out");
     if (!buffersink_ctx) {
         throw FFmpegException("Failed to allocate buffer sink");
     }
 
+    // Configure output pixel format
     ret = av_opt_set_bin(buffersink_ctx, "pix_fmts",
         reinterpret_cast<uint8_t*>(&dec_ctx->pix_fmt), sizeof(dec_ctx->pix_fmt),
         AV_OPT_SEARCH_CHILDREN);
@@ -93,6 +108,9 @@ void FFmpegContext::init_filters(const std::string& filters_descr) {
     ret = avfilter_init_dict(buffersink_ctx, nullptr);
     check_av_error(ret, "initialize buffer sink");
 
+    /* Set the endpoints for the filter graph. The filter_graph will
+     * be linked to the graph described by filters_descr.
+     */
     outputs->name = av_strdup("in");
     outputs->filter_ctx = buffersrc_ctx;
     outputs->pad_idx = 0;
@@ -103,6 +121,7 @@ void FFmpegContext::init_filters(const std::string& filters_descr) {
     inputs->pad_idx = 0;
     inputs->next = nullptr;
 
+    // Workaround with smart pointers
     AVFilterInOut* inputs_ptr = inputs.get();
     AVFilterInOut* outputs_ptr = outputs.get();
 
@@ -128,6 +147,7 @@ void FFmpegContext::process_frames() {
         throw FFmpegException("Failed to allocate frame/packet resources");
     }
 
+    /* read all packets */
     while (true) {
         int ret = av_read_frame(fmt_ctx, packet.get());
         if (ret < 0) {
@@ -159,12 +179,15 @@ void FFmpegContext::receive_and_process_frames(FramePtr& frame, FramePtr& filt_f
         }
         check_av_error(ret, "receive frame from decoder");
 
+        /* Use the best effort timestamp */
         frame->pts = frame->best_effort_timestamp;
 
+        /* push the decoded frame into the filtergraph */
         ret = av_buffersrc_add_frame_flags(buffersrc_ctx, frame.get(),
             AV_BUFFERSRC_FLAG_KEEP_REF);
         check_av_error(ret, "feed frame to filter graph");
 
+        /* pull filtered frames from the filtergraph */
         while (true) {
             ret = av_buffersink_get_frame(buffersink_ctx, filt_frame.get());
             if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF) {
@@ -182,9 +205,11 @@ void FFmpegContext::receive_and_process_frames(FramePtr& frame, FramePtr& filt_f
 void FFmpegContext::flush_decoder_and_filters(FramePtr& frame, FramePtr& filt_frame) {
     LOG_INFO("Flushing decoder and filters");
 
+    /* flush the decoder */
     avcodec_send_packet(dec_ctx, nullptr);
     receive_and_process_frames(frame, filt_frame);
 
+    /* flush the filters */
     av_buffersrc_add_frame_flags(buffersrc_ctx, nullptr, 0);
     while (true) {
         int ret = av_buffersink_get_frame(buffersink_ctx, filt_frame.get());
@@ -199,6 +224,7 @@ void FFmpegContext::flush_decoder_and_filters(FramePtr& frame, FramePtr& filt_fr
 }
 
 void FFmpegContext::display_frame(const AVFrame* frame, AVRational time_base) {
+    /* compute proper sleep time based on the time base */
     if (frame->pts != AV_NOPTS_VALUE) {
         if (last_pts != AV_NOPTS_VALUE) {
             int64_t delay = av_rescale_q(frame->pts - last_pts,
@@ -209,8 +235,9 @@ void FFmpegContext::display_frame(const AVFrame* frame, AVRational time_base) {
         last_pts = frame->pts;
     }
 
+    /* Trivial ASCII grayscale display */
     uint8_t* p0 = frame->data[0];
-    std::cout << "\033c";
+    std::cout << "\033c";  // Clear screen
     for (int y = 0; y < frame->height; y++) {
         uint8_t* p = p0;
         for (int x = 0; x < frame->width; x++)

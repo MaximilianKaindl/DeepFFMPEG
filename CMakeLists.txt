@@ -23,10 +23,13 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/header)
 set(SOURCE_FILES
     "src/main.cpp"
     "src/ffmpeg_context.cpp"
+    "src/ffmpeg_logger.cpp"
 )
 
 set(HEADER_FILES
-    "header/ffmpeg_context.hpp"
+    "header/ffmpeg_context.h"
+    "header/ffmpeg_logger.h"
+    "header/ffmpeg_utils.h"
 )
 
 # Add source to this project's executable.
